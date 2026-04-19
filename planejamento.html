@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TôContando — Planejamento de Lançamento</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand:      #0cb8a4;
+  --brand-dark: #099186;
+  --brand-bg:   #e8faf8;
+  --brand-bd:   #9fe8e0;
+  --ink:        #0f1117;
+  --ink2:       #282d3a;
+  --muted:      #6b7185;
+  --muted2:     #a0a8be;
+  --bg:         #f4f6f9;
+  --surface:    #ffffff;
+  --border:     #e0e4ee;
+  --green:      #35a06a;
+  --green-bg:   #edf7f2;
+  --yellow:     #f5a623;
+  --yellow-bg:  #fef8ec;
+  --red:        #e05252;
+  --red-bg:     #fdf0f0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.6;
+}
+
+/* ── HEADER ── */
+.header{
+  background:var(--ink);
+  padding:28px 32px 24px;
+  position:sticky;top:0;z-index:100;
+}
+.header-in{max-width:860px;margin:0 auto;}
+.logo{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;font-size:1.2rem;
+  color:var(--brand);letter-spacing:-.02em;
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.logo-dot{width:8px;height:8px;background:var(--brand);border-radius:50%;animation:breathe 2.4s ease-in-out infinite;}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
+.header-title{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;font-size:1.5rem;
+  color:white;letter-spacing:-.02em;margin-bottom:16px;
+}
+.progress-wrap{display:flex;align-items:center;gap:14px;}
+.progress-bar-bg{
+  flex:1;height:8px;background:#1a1e2a;border-radius:99px;overflow:hidden;
+}
+.progress-bar-fill{
+  height:100%;background:var(--brand);border-radius:99px;
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+.progress-label{
+  color:var(--muted2);font-size:.8rem;font-weight:600;white-space:nowrap;min-width:60px;text-align:right;
+}
+.progress-pct{color:var(--brand);font-weight:700;}
+
+/* ── LAYOUT ── */
+.main{max-width:860px;margin:0 auto;padding:32px 24px 80px;}
+
+/* ── FASE ── */
+.fase{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.fase-header{
+  display:flex;align-items:center;gap:14px;
+  padding:20px 24px;cursor:pointer;
+  user-select:none;
+  transition:background .15s;
+}
+.fase-header:hover{background:#fafbfd;}
+.fase-num{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;font-size:.85rem;
+  flex-shrink:0;
+}
+.fase-title{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:700;font-size:1.05rem;
+  letter-spacing:-.015em;flex:1;
+}
+.fase-meta{display:flex;align-items:center;gap:10px;}
+.fase-count{
+  font-size:.75rem;color:var(--muted);font-weight:500;
+}
+.fase-pill{
+  font-size:.7rem;font-weight:700;
+  padding:3px 10px;border-radius:99px;white-space:nowrap;
+}
+.pill-done{background:var(--green-bg);color:var(--green);}
+.pill-prog{background:var(--yellow-bg);color:var(--yellow);}
+.pill-todo{background:var(--bg);color:var(--muted);}
+.fase-chevron{
+  color:var(--muted2);font-size:.8rem;
+  transition:transform .2s;flex-shrink:0;
+}
+.fase.open .fase-chevron{transform:rotate(180deg);}
+.fase-mini-bar{
+  height:3px;background:var(--bg);
+}
+.fase-mini-fill{height:100%;background:var(--brand);transition:width .4s;}
+
+.fase-body{display:none;padding:0 24px 20px;}
+.fase.open .fase-body{display:block;}
+
+/* ── GRUPO ── */
+.grupo{margin-top:18px;}
+.grupo-label{
+  font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;
+  color:var(--muted2);margin-bottom:10px;
+  padding-bottom:6px;border-bottom:1px solid var(--border);
+}
+
+/* ── ITEM ── */
+.item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 12px;border-radius:10px;
+  cursor:pointer;
+  transition:background .12s;
+  margin-bottom:2px;
+  position:relative;
+}
+.item:hover{background:var(--bg);}
+.item.done{opacity:.55;}
+.item.done .item-text{text-decoration:line-through;color:var(--muted);}
+
+.cb{
+  width:20px;height:20px;border-radius:6px;
+  border:2px solid var(--border2, #c4cade);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+  transition:all .15s;background:white;
+}
+.item.done .cb{
+  background:var(--green);border-color:var(--green);
+}
+.cb-check{display:none;color:white;font-size:.7rem;font-weight:700;}
+.item.done .cb-check{display:block;}
+
+.item-content{flex:1;}
+.item-text{font-size:.9rem;color:var(--ink2);font-weight:500;line-height:1.4;}
+.item-hint{font-size:.76rem;color:var(--muted);margin-top:2px;line-height:1.4;}
+.item-tag{
+  display:inline-block;font-size:.65rem;font-weight:700;
+  padding:2px 7px;border-radius:99px;margin-left:6px;
+  vertical-align:middle;
+}
+.tag-kiwify{background:#7c3aed22;color:#7c3aed;}
+.tag-dev{background:#0cb8a422;color:#099186;}
+.tag-legal{background:#e0525222;color:#e05252;}
+.tag-mkt{background:#f5a62322;color:#c97c0a;}
+.tag-config{background:#6b718522;color:#4a5068;}
+
+.item-done-at{
+  font-size:.68rem;color:var(--green);
+  font-weight:600;margin-top:3px;
+}
+
+/* ── NOTE ── */
+.fase-note{
+  margin-top:16px;padding-top:14px;
+  border-top:1px solid var(--border);
+}
+.fase-note label{
+  font-size:.72rem;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.05em;
+  display:block;margin-bottom:6px;
+}
+.fase-note textarea{
+  width:100%;border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.84rem;color:var(--ink2);resize:vertical;min-height:60px;
+  background:var(--bg);outline:none;transition:border .15s;
+}
+.fase-note textarea:focus{border-color:var(--brand);}
+
+/* ── LEGENDA ── */
+.legend{
+  display:flex;gap:20px;flex-wrap:wrap;
+  margin-bottom:24px;
+  padding:14px 18px;background:var(--surface);
+  border:1px solid var(--border);border-radius:14px;
+  font-size:.76rem;color:var(--muted);
+}
+.legend span{display:flex;align-items:center;gap:5px;font-weight:600;}
+
+/* ── RESET BTN ── */
+.btn-reset{
+  display:block;margin:32px auto 0;
+  background:none;border:1px solid var(--border);
+  color:var(--muted);font-size:.78rem;font-weight:600;
+  padding:8px 20px;border-radius:99px;cursor:pointer;
+  transition:all .15s;
+}
+.btn-reset:hover{border-color:var(--red);color:var(--red);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .header{padding:20px 18px 16px;}
+  .main{padding:20px 14px 60px;}
+  .fase-header{padding:16px 18px;}
+  .fase-body{padding:0 18px 16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-in">
+    <div class="logo"><div class="logo-dot"></div> TôContando</div>
+    <div class="header-title">Planejamento de Lançamento</div>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="bar" style="width:0%"></div>
+      </div>
+      <div class="progress-label"><span class="progress-pct" id="pct">0%</span> concluído</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="legend">
+    <span><span class="item-tag tag-kiwify">kiwify</span> Configuração na plataforma</span>
+    <span><span class="item-tag tag-dev">dev</span> Técnico/código</span>
+    <span><span class="item-tag tag-legal">legal</span> Jurídico</span>
+    <span><span class="item-tag tag-mkt">mkt</span> Marketing</span>
+    <span><span class="item-tag tag-config">config</span> Configuração geral</span>
+  </div>
+
+  <!-- FASE 1 -->
+  <div class="fase open" id="fase-1">
+    <div class="fase-header" onclick="toggleFase('fase-1')">
+      <div class="fase-num" style="background:#7c3aed22;color:#7c3aed;">1</div>
+      <div class="fase-title">Produto no Kiwify</div>
+      <div class="fase-meta">
+        <span class="fase-count" id="count-fase-1"></span>
+        <span class="fase-pill" id="pill-fase-1"></span>
+      </div>
+      <div class="fase-chevron">▼</div>
+    </div>
+    <div class="fase-mini-bar"><div class="fase-mini-fill" id="mini-fase-1" style="width:0%"></div></div>
+    <div class="fase-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Configuração básica</div>
+        <div class="item" onclick="toggle(this)" data-id="k1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar produto mensal <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Nome: App Casa — R$14,90/mês. Categoria: Software/App.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="k2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar produto anual <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Nome: App Casa Anual — R$119,90/ano. Linkar com o mesmo produto.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="k3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Adicionar imagem/capa do produto <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Usar logo ou print do app. Tamanho recomendado: 800×600px.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="k4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Escrever descrição do produto <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Aparece no checkout. Resumo curto do que o cliente vai receber.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="k5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Testar fluxo completo de compra <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Fazer uma compra teste do início ao fim. Verificar e-mail, acesso, etc.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Pós-compra</div>
+        <div class="item" onclick="toggle(this)" data-id="k6">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Configurar página de obrigado <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Mensagem + link direto pro app + instruções de acesso. Aparece após pagamento.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="k7">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Escrever e-mail de boas-vindas automático <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Enviado logo após a compra. Conteúdo: link do app, chave de acesso, como instalar no celular, WhatsApp de suporte.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="k8">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Configurar e-mail de renovação <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Lembrete antes do próximo débito. O Kiwify envia automaticamente para assinaturas.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase-note">
+        <label>Anotações — Produto no Kiwify</label>
+        <textarea placeholder="Cole aqui IDs dos produtos, links, observações..." data-note="fase-1"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 2 -->
+  <div class="fase" id="fase-2">
+    <div class="fase-header" onclick="toggleFase('fase-2')">
+      <div class="fase-num" style="background:#0cb8a422;color:#099186;">2</div>
+      <div class="fase-title">Entrega de Acesso ao Cliente</div>
+      <div class="fase-meta">
+        <span class="fase-count" id="count-fase-2"></span>
+        <span class="fase-pill" id="pill-fase-2"></span>
+      </div>
+      <div class="fase-chevron">▼</div>
+    </div>
+    <div class="fase-mini-bar"><div class="fase-mini-fill" id="mini-fase-2" style="width:0%"></div></div>
+    <div class="fase-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Como o cliente acessa</div>
+        <div class="item" onclick="toggle(this)" data-id="a1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Definir chave de acesso por cliente <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Atualmente o app usa uma chave única. Decidir: manter uma chave geral ou criar chave individual por cliente.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="a2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Incluir link do app no e-mail de boas-vindas <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Link direto para tocontando.app (ou link atual). Com instruções: "abra, clique em Adicionar à tela inicial".</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="a3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar tutorial de instalação (PWA no celular) <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Gif ou print mostrando como adicionar à tela inicial no iPhone e Android. Incluir no e-mail ou em uma página simples.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="a4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar planilha de controle de clientes ativos <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Nome, e-mail, plano, data de início, status. Manter atualizado a cada nova venda.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Primeiro contato</div>
+        <div class="item" onclick="toggle(this)" data-id="a5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Enviar mensagem de boas-vindas no WhatsApp manualmente (por ora) <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Enquanto a base é pequena, uma mensagem pessoal faz toda diferença e reduz suporte.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="a6">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Testar recebimento do acesso após compra <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Simular compra com e-mail teste e verificar que tudo chega certo e funciona.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase-note">
+        <label>Anotações — Entrega de Acesso</label>
+        <textarea placeholder="Chave atual de acesso, fluxo definido, observações..." data-note="fase-2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 3 -->
+  <div class="fase" id="fase-3">
+    <div class="fase-header" onclick="toggleFase('fase-3')">
+      <div class="fase-num" style="background:#35a06a22;color:#35a06a;">3</div>
+      <div class="fase-title">Página de Vendas & Domínio</div>
+      <div class="fase-meta">
+        <span class="fase-count" id="count-fase-3"></span>
+        <span class="fase-pill" id="pill-fase-3"></span>
+      </div>
+      <div class="fase-chevron">▼</div>
+    </div>
+    <div class="fase-mini-bar"><div class="fase-mini-fill" id="mini-fase-3" style="width:0%"></div></div>
+    <div class="fase-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Página de vendas</div>
+        <div class="item done" onclick="toggle(this)" data-id="s1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar página de vendas <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Feito ✓ — site-tocontando.vercel.app</div>
+          </div>
+        </div>
+        <div class="item done" onclick="toggle(this)" data-id="s2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Adicionar links do Kiwify nos botões <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Feito ✓ — mensal e anual configurados.</div>
+          </div>
+        </div>
+        <div class="item done" onclick="toggle(this)" data-id="s3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Deploy no Vercel <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Feito ✓ — publicado e GitHub conectado.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="s4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Testar página em mobile (iPhone e Android) <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Abrir no celular e conferir layout, botões, formulários, velocidade.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="s5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Adicionar links reais de Termos e Privacidade no rodapé <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Atualmente apontam para #. Criar as páginas e linkar.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="s6">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Configurar Google Analytics ou Plausible <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Para saber quantas pessoas visitam, de onde vêm, qual CTA converte mais.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Domínio tocontando.app</div>
+        <div class="item" onclick="toggle(this)" data-id="d1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Comprar domínio tocontando.app <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Recomendado: Porkbun ou Namecheap (~R$60–80/ano). Domínio .app exige HTTPS, mas o Vercel já cuida disso.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="d2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Adicionar domínio no Vercel <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Vercel → Settings → Domains → tocontando.app. O Vercel gera os registros DNS.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="d3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Configurar DNS no registrador de domínio <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Apontar os registros A e CNAME para o Vercel conforme indicado no painel.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="d4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Verificar HTTPS ativo em tocontando.app <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Aguardar propagação do DNS (pode levar até 24h). Vercel emite o certificado automaticamente.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="d5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Atualizar link do app no e-mail de boas-vindas para tocontando.app <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Trocar o link provisório pelo domínio final em todos os materiais.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase-note">
+        <label>Anotações — Página & Domínio</label>
+        <textarea placeholder="Onde comprou o domínio, credenciais, observações..." data-note="fase-3"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 4 -->
+  <div class="fase" id="fase-4">
+    <div class="fase-header" onclick="toggleFase('fase-4')">
+      <div class="fase-num" style="background:#e0525222;color:#e05252;">4</div>
+      <div class="fase-title">Jurídico & LGPD</div>
+      <div class="fase-meta">
+        <span class="fase-count" id="count-fase-4"></span>
+        <span class="fase-pill" id="pill-fase-4"></span>
+      </div>
+      <div class="fase-chevron">▼</div>
+    </div>
+    <div class="fase-mini-bar"><div class="fase-mini-fill" id="mini-fase-4" style="width:0%"></div></div>
+    <div class="fase-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Documentos obrigatórios</div>
+        <div class="item" onclick="toggle(this)" data-id="l1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar Termos de Uso <span class="item-tag tag-legal">legal</span></div>
+            <div class="item-hint">O que o app faz, o que não faz, limitações, como cancelar, política de reembolso (mínimo 7 dias pelo CDC).</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="l2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar Política de Privacidade <span class="item-tag tag-legal">legal</span></div>
+            <div class="item-hint">Quais dados são coletados (e-mail, dados financeiros), onde ficam (Firebase), por quanto tempo, como deletar.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="l3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Publicar Termos e Privacidade como páginas no site <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Podem ser páginas simples /termos e /privacidade. Linkar no rodapé.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="l4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Definir política de reembolso (mínimo 7 dias — CDC) <span class="item-tag tag-legal">legal</span></div>
+            <div class="item-hint">Por lei, o consumidor tem 7 dias para arrependimento em compras online. Configurar no Kiwify.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase-note">
+        <label>Anotações — Jurídico</label>
+        <textarea placeholder="Links dos documentos, observações sobre LGPD..." data-note="fase-4"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 5 -->
+  <div class="fase" id="fase-5">
+    <div class="fase-header" onclick="toggleFase('fase-5')">
+      <div class="fase-num" style="background:#3b82f622;color:#2563eb;">5</div>
+      <div class="fase-title">Suporte & Atendimento</div>
+      <div class="fase-meta">
+        <span class="fase-count" id="count-fase-5"></span>
+        <span class="fase-pill" id="pill-fase-5"></span>
+      </div>
+      <div class="fase-chevron">▼</div>
+    </div>
+    <div class="fase-mini-bar"><div class="fase-mini-fill" id="mini-fase-5" style="width:0%"></div></div>
+    <div class="fase-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Estrutura de suporte</div>
+        <div class="item" onclick="toggle(this)" data-id="su1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Definir número do WhatsApp de suporte <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Pode ser seu número atual ou um chip dedicado. Configurar WhatsApp Business para ter respostas automáticas.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="su2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Configurar mensagem automática de ausência no WhatsApp Business <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Ex: "Olá! Recebi sua mensagem e respondo em breve. Horário de suporte: seg–sex, 9h–18h."</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="su3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar respostas prontas para dúvidas frequentes <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">"Como acesso?", "Não recebi o e-mail", "Como instalo no iPhone", "Como cancelo", "Esqueci minha senha".</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="su4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Atualizar link de suporte na página de vendas <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Substituir o "#" do "Suporte por WhatsApp" pelo link wa.me/55SEUNUMERO.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase-note">
+        <label>Anotações — Suporte</label>
+        <textarea placeholder="Número de suporte, horários, observações..." data-note="fase-5"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 6 -->
+  <div class="fase" id="fase-6">
+    <div class="fase-header" onclick="toggleFase('fase-6')">
+      <div class="fase-num" style="background:#f5a62322;color:#c97c0a;">6</div>
+      <div class="fase-title">Cancelamentos & Reembolsos</div>
+      <div class="fase-meta">
+        <span class="fase-count" id="count-fase-6"></span>
+        <span class="fase-pill" id="pill-fase-6"></span>
+      </div>
+      <div class="fase-chevron">▼</div>
+    </div>
+    <div class="fase-mini-bar"><div class="fase-mini-fill" id="mini-fase-6" style="width:0%"></div></div>
+    <div class="fase-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Fluxo de cancelamento</div>
+        <div class="item" onclick="toggle(this)" data-id="c1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Entender onde o cliente cancela no Kiwify <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">O Kiwify tem portal do assinante onde ele pode cancelar sozinho. Testar o fluxo como cliente.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="c2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Definir o que acontece com o acesso após cancelamento <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Acesso mantido até fim do período pago? Cortado imediatamente? Decidir e documentar.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="c3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Configurar e-mail de cancelamento no Kiwify <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Mensagem amigável. Pode incluir um "sentiremos sua falta" + convite para voltar.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="c4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Configurar prazo de reembolso (7 dias) no Kiwify <span class="item-tag tag-kiwify">kiwify</span></div>
+            <div class="item-hint">Obrigatório pelo Código de Defesa do Consumidor para compras online.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="c5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar script de resposta para pedido de reembolso via WhatsApp <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Resposta rápida, sem discussão, com instruções de como solicitar pelo portal Kiwify.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase-note">
+        <label>Anotações — Cancelamentos</label>
+        <textarea placeholder="Política definida, link do portal do assinante, observações..." data-note="fase-6"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 7 -->
+  <div class="fase" id="fase-7">
+    <div class="fase-header" onclick="toggleFase('fase-7')">
+      <div class="fase-num" style="background:#ec489922;color:#be185d;">7</div>
+      <div class="fase-title">Marketing & Divulgação</div>
+      <div class="fase-meta">
+        <span class="fase-count" id="count-fase-7"></span>
+        <span class="fase-pill" id="pill-fase-7"></span>
+      </div>
+      <div class="fase-chevron">▼</div>
+    </div>
+    <div class="fase-mini-bar"><div class="fase-mini-fill" id="mini-fase-7" style="width:0%"></div></div>
+    <div class="fase-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Presença digital</div>
+        <div class="item" onclick="toggle(this)" data-id="m1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar perfil no Instagram para o TôContando <span class="item-tag tag-mkt">mkt</span></div>
+            <div class="item-hint">@tocontando ou @apptocontando. Bio clara: o que é, para quem é, link da página de vendas.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="m2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Colocar link da página de vendas no Instagram e WhatsApp <span class="item-tag tag-mkt">mkt</span></div>
+            <div class="item-hint">tocontando.app (ou site-tocontando.vercel.app por ora) na bio.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="m3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Gravar vídeo demo de 60 segundos do app funcionando <span class="item-tag tag-mkt">mkt</span></div>
+            <div class="item-hint">Mostrar o fluxo real: abrir o app, lançar uma despesa, ver o resumo. Sem edição complexa — espontâneo converte.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="m4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Fazer post de lançamento <span class="item-tag tag-mkt">mkt</span></div>
+            <div class="item-hint">Story + feed. "Lançamos o TôContando. Controle do lar por R$14,90/mês." Com link.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Divulgação inicial</div>
+        <div class="item" onclick="toggle(this)" data-id="m5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Divulgar para círculo próximo (família, amigos, colegas) <span class="item-tag tag-mkt">mkt</span></div>
+            <div class="item-hint">Primeiros clientes validam o produto. Pedir feedback honesto.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="m6">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Enviar para grupos de finanças no WhatsApp/Telegram <span class="item-tag tag-mkt">mkt</span></div>
+            <div class="item-hint">Grupos de finanças pessoais, economia doméstica, mamães, casais. Mensagem curta e natural.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="m7">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Coletar primeiros depoimentos de clientes <span class="item-tag tag-mkt">mkt</span></div>
+            <div class="item-hint">Pedir para clientes iniciais mandarem um print ou áudio de feedback. Usar como prova social no site.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="m8">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Atualizar depoimentos da página de vendas com depoimentos reais <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Os depoimentos atuais são genéricos. Substituir por feedbacks reais de clientes (com permissão).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase-note">
+        <label>Anotações — Marketing</label>
+        <textarea placeholder="Links do Instagram, ideias de conteúdo, calendário..." data-note="fase-7"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASE 8 -->
+  <div class="fase" id="fase-8">
+    <div class="fase-header" onclick="toggleFase('fase-8')">
+      <div class="fase-num" style="background:#6b718522;color:#4a5068;">8</div>
+      <div class="fase-title">Controle & Métricas</div>
+      <div class="fase-meta">
+        <span class="fase-count" id="count-fase-8"></span>
+        <span class="fase-pill" id="pill-fase-8"></span>
+      </div>
+      <div class="fase-chevron">▼</div>
+    </div>
+    <div class="fase-mini-bar"><div class="fase-mini-fill" id="mini-fase-8" style="width:0%"></div></div>
+    <div class="fase-body">
+
+      <div class="grupo">
+        <div class="grupo-label">O que acompanhar</div>
+        <div class="item" onclick="toggle(this)" data-id="me1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Criar planilha de MRR (Receita Recorrente Mensal) <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Clientes × plano × valor. Atualizar mensalmente. Meta: R$500 MRR no 1º mês.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="me2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Definir meta de clientes para o primeiro mês <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Ex: 10 clientes mensais = R$149/mês. Metas realistas ajudam a manter foco.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="me3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Acompanhar visitas na página de vendas (Analytics) <span class="item-tag tag-dev">dev</span></div>
+            <div class="item-hint">Quantas visitas viram cliques no botão? Qual % converte? Isso guia melhorias.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="me4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Monitorar churn (cancelamentos) mensalmente <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">Se o churn for alto, entender o motivo antes de investir em aquisição.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="me5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Revisar o planejamento a cada 30 dias <span class="item-tag tag-config">config</span></div>
+            <div class="item-hint">O que funcionou? O que travou? Ajustar o próximo mês com base no real.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase-note">
+        <label>Anotações — Métricas</label>
+        <textarea placeholder="Metas, resultados, observações mensais..." data-note="fase-8"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-reset" onclick="resetAll()">Resetar todo o progresso</button>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'tc-plan-v1';
+const NOTE_KEY = 'tc-notes-v1';
+
+function save() {
+  const state = {};
+  document.querySelectorAll('.item[data-id]').forEach(el => {
+    state[el.dataset.id] = el.classList.contains('done');
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function saveNotes() {
+  const notes = {};
+  document.querySelectorAll('textarea[data-note]').forEach(el => {
+    notes[el.dataset.note] = el.value;
+  });
+  localStorage.setItem(NOTE_KEY, JSON.stringify(notes));
+}
+
+function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  const state = JSON.parse(raw);
+  document.querySelectorAll('.item[data-id]').forEach(el => {
+    if (state[el.dataset.id]) {
+      el.classList.add('done');
+    }
+  });
+  const rawNotes = localStorage.getItem(NOTE_KEY);
+  if (rawNotes) {
+    const notes = JSON.parse(rawNotes);
+    document.querySelectorAll('textarea[data-note]').forEach(el => {
+      if (notes[el.dataset.note]) el.value = notes[el.dataset.note];
+    });
+  }
+}
+
+function toggle(el) {
+  el.classList.toggle('done');
+  save();
+  updateAll();
+}
+
+function toggleFase(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function updateAll() {
+  let total = 0, done = 0;
+  for (let i = 1; i <= 8; i++) {
+    const fase = document.getElementById('fase-' + i);
+    if (!fase) continue;
+    const items = fase.querySelectorAll('.item[data-id]');
+    const doneItems = fase.querySelectorAll('.item[data-id].done');
+    const t = items.length, d = doneItems.length;
+    total += t; done += d;
+    const pct = t > 0 ? Math.round(d / t * 100) : 0;
+    document.getElementById('mini-fase-' + i).style.width = pct + '%';
+    document.getElementById('count-fase-' + i).textContent = d + '/' + t;
+    const pill = document.getElementById('pill-fase-' + i);
+    if (d === t && t > 0) {
+      pill.textContent = 'Concluída';
+      pill.className = 'fase-pill pill-done';
+    } else if (d > 0) {
+      pill.textContent = 'Em progresso';
+      pill.className = 'fase-pill pill-prog';
+    } else {
+      pill.textContent = 'Pendente';
+      pill.className = 'fase-pill pill-todo';
+    }
+  }
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('bar').style.width = pct + '%';
+  document.getElementById('pct').textContent = pct + '%';
+}
+
+function resetAll() {
+  if (!confirm('Tem certeza? Isso vai apagar todo o progresso marcado.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  document.querySelectorAll('.item[data-id]').forEach(el => el.classList.remove('done'));
+  updateAll();
+}
+
+document.querySelectorAll('textarea[data-note]').forEach(el => {
+  el.addEventListener('input', saveNotes);
+});
+
+load();
+updateAll();
+</script>
+</body>
+</html>

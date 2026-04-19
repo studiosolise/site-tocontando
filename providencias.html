@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TôContando — O que Providenciar</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand:      #0cb8a4;
+  --brand-dark: #099186;
+  --brand-bg:   #e8faf8;
+  --brand-bd:   #9fe8e0;
+  --ink:        #0f1117;
+  --ink2:       #282d3a;
+  --muted:      #6b7185;
+  --muted2:     #a0a8be;
+  --bg:         #f4f6f9;
+  --surface:    #ffffff;
+  --border:     #e0e4ee;
+  --border2:    #c4cade;
+  --green:      #35a06a;
+  --green-bg:   #edf7f2;
+  --yellow:     #f5a623;
+  --yellow-bg:  #fef8ec;
+  --red:        #e05252;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
+
+/* ── HEADER ── */
+.header{background:var(--ink);padding:28px 32px 24px;position:sticky;top:0;z-index:100;}
+.header-in{max-width:860px;margin:0 auto;}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.2rem;color:var(--brand);letter-spacing:-.02em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.logo-dot{width:8px;height:8px;background:var(--brand);border-radius:50%;animation:breathe 2.4s ease-in-out infinite;}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
+.header-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.5rem;color:white;letter-spacing:-.02em;margin-bottom:6px;}
+.header-sub{font-size:.82rem;color:var(--muted2);}
+.progress-wrap{display:flex;align-items:center;gap:14px;margin-top:14px;}
+.progress-bar-bg{flex:1;height:8px;background:#1a1e2a;border-radius:99px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:var(--brand);border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1);}
+.progress-label{color:var(--muted2);font-size:.8rem;font-weight:600;white-space:nowrap;min-width:60px;text-align:right;}
+.progress-pct{color:var(--brand);font-weight:700;}
+
+/* ── LAYOUT ── */
+.main{max-width:860px;margin:0 auto;padding:32px 24px 80px;}
+
+/* ── BLOCO ── */
+.bloco{background:var(--surface);border:1px solid var(--border);border-radius:20px;margin-bottom:16px;overflow:hidden;}
+.bloco-header{display:flex;align-items:center;gap:14px;padding:20px 24px;cursor:pointer;user-select:none;transition:background .15s;}
+.bloco-header:hover{background:#fafbfd;}
+.bloco-icon{font-size:1.3rem;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bloco-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-.015em;flex:1;}
+.bloco-meta{display:flex;align-items:center;gap:10px;}
+.bloco-count{font-size:.75rem;color:var(--muted);font-weight:500;}
+.bloco-pill{font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+.pill-done{background:var(--green-bg);color:var(--green);}
+.pill-prog{background:var(--yellow-bg);color:var(--yellow);}
+.pill-todo{background:var(--bg);color:var(--muted);}
+.bloco-chevron{color:var(--muted2);font-size:.8rem;transition:transform .2s;flex-shrink:0;}
+.bloco.open .bloco-chevron{transform:rotate(180deg);}
+.bloco-mini-bar{height:3px;background:var(--bg);}
+.bloco-mini-fill{height:100%;background:var(--brand);transition:width .4s;}
+.bloco-body{display:none;padding:0 24px 24px;}
+.bloco.open .bloco-body{display:block;}
+
+/* ── ITEM (checkbox) ── */
+.item{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background .12s;margin-bottom:2px;}
+.item:hover{background:var(--bg);}
+.item.done .item-text{text-decoration:line-through;color:var(--muted);}
+.item.done{opacity:.6;}
+.cb{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s;background:white;}
+.item.done .cb{background:var(--green);border-color:var(--green);}
+.cb-check{display:none;color:white;font-size:.7rem;font-weight:700;}
+.item.done .cb-check{display:block;}
+.item-content{flex:1;}
+.item-text{font-size:.9rem;color:var(--ink2);font-weight:500;line-height:1.4;}
+.item-hint{font-size:.76rem;color:var(--muted);margin-top:2px;line-height:1.4;}
+.urgente{display:inline-block;font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:middle;background:#fdf0f0;color:var(--red);}
+.recomendado{display:inline-block;font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:middle;background:var(--yellow-bg);color:#c97c0a;}
+
+/* ── CAMPO DE VALOR ── */
+.campo{margin-top:6px;}
+.campo label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:4px;}
+.campo input, .campo textarea{
+  width:100%;border:1px solid var(--border);border-radius:10px;
+  padding:9px 12px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.85rem;color:var(--ink2);background:var(--bg);
+  outline:none;transition:border .15s;
+}
+.campo input:focus, .campo textarea:focus{border-color:var(--brand);}
+.campo textarea{resize:vertical;min-height:64px;}
+.campo-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── GRUPO ── */
+.grupo{margin-top:20px;}
+.grupo-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+
+/* ── SEPARADOR item+campo ── */
+.item-form{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;}
+.item-form-header{display:flex;align-items:flex-start;gap:10px;cursor:pointer;}
+.item-form-header .cb{margin-top:1px;}
+.item-form.done .item-text{text-decoration:line-through;color:var(--muted);}
+.item-form.done{opacity:.7;}
+.item-form.done .cb{background:var(--green);border-color:var(--green);}
+.item-form-fields{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
+
+/* ── ALERTA ── */
+.alerta{
+  background:var(--yellow-bg);border:1px solid #f5c96033;
+  border-radius:14px;padding:14px 16px;margin-bottom:24px;
+  font-size:.83rem;color:#7a4a00;line-height:1.6;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.alerta-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+
+/* ── RESET ── */
+.btn-reset{display:block;margin:32px auto 0;background:none;border:1px solid var(--border);color:var(--muted);font-size:.78rem;font-weight:600;padding:8px 20px;border-radius:99px;cursor:pointer;transition:all .15s;}
+.btn-reset:hover{border-color:var(--red);color:var(--red);}
+
+/* ── LINK PLANEAMENTO ── */
+.nav-link{display:flex;gap:16px;margin-bottom:20px;}
+.nav-link a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:8px 16px;border:1px solid var(--border);border-radius:99px;background:var(--surface);transition:all .15s;}
+.nav-link a:hover,.nav-link a.active{background:var(--brand);color:white;border-color:var(--brand);}
+
+@media(max-width:600px){
+  .header{padding:20px 18px 16px;}
+  .main{padding:20px 14px 60px;}
+  .bloco-header{padding:16px 18px;}
+  .bloco-body{padding:0 18px 18px;}
+  .campo-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-in">
+    <div class="logo"><div class="logo-dot"></div> TôContando</div>
+    <div class="header-title">O que Providenciar</div>
+    <div class="header-sub">Tudo que você precisa reunir antes de vender</div>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar" style="width:0%"></div></div>
+      <div class="progress-label"><span class="progress-pct" id="pct">0%</span> providenciado</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="nav-link">
+    <a href="/planejamento">← Planejamento de tarefas</a>
+    <a href="/providencias" class="active">O que providenciar</a>
+  </div>
+
+  <div class="alerta">
+    <div class="alerta-icon">⚠️</div>
+    <div><strong>Atenção:</strong> Os campos de texto desta página ficam salvos <strong>só no seu navegador</strong> (localStorage). Não compartilhe este arquivo aberto com ninguém. Para guardar com segurança, exporte ou imprima a página.</div>
+  </div>
+
+  <!-- BLOCO 1 — CONTAS & ACESSO -->
+  <div class="bloco open" id="bloco-1">
+    <div class="bloco-header" onclick="toggleBloco('bloco-1')">
+      <div class="bloco-icon" style="background:#7c3aed22;">🔑</div>
+      <div class="bloco-title">Contas & Acessos</div>
+      <div class="bloco-meta">
+        <span class="bloco-count" id="count-bloco-1"></span>
+        <span class="bloco-pill" id="pill-bloco-1"></span>
+      </div>
+      <div class="bloco-chevron">▼</div>
+    </div>
+    <div class="bloco-mini-bar"><div class="bloco-mini-fill" id="mini-bloco-1" style="width:0%"></div></div>
+    <div class="bloco-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Plataformas essenciais</div>
+
+        <div class="item-form" id="if-c1">
+          <div class="item-form-header" onclick="toggleForm(this,'c1')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Conta Kiwify <span class="urgente">urgente</span></div>
+              <div class="item-hint">Cadastro de vendedor completo, CPF verificado, conta bancária cadastrada.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>E-mail de login no Kiwify</label><input type="email" placeholder="seu@email.com" data-key="c1-email"></div>
+            <div class="campo"><label>Status da conta</label><input type="text" placeholder="ex: verificada, pendente..." data-key="c1-status"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-c2">
+          <div class="item-form-header" onclick="toggleForm(this,'c2')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Conta Vercel <span class="urgente">urgente</span></div>
+              <div class="item-hint">Conectada ao GitHub studiosolise. Site já publicado.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>E-mail de login no Vercel</label><input type="email" placeholder="seu@email.com" data-key="c2-email"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-c3">
+          <div class="item-form-header" onclick="toggleForm(this,'c3')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Conta GitHub (studiosolise) <span class="urgente">urgente</span></div>
+              <div class="item-hint">Repositórios: site-tocontando e tocontando-app.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>E-mail do GitHub</label><input type="email" placeholder="seu@email.com" data-key="c3-email"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-c4">
+          <div class="item-form-header" onclick="toggleForm(this,'c4')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Conta Firebase (banco de dados do app) <span class="urgente">urgente</span></div>
+              <div class="item-hint">Onde os dados dos usuários ficam salvos. Verificar plano (Spark gratuito tem limites).</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>E-mail do Firebase / Google</label><input type="email" placeholder="seu@email.com" data-key="c4-email"></div>
+            <div class="campo"><label>Nome do projeto Firebase</label><input type="text" placeholder="ex: tocontando-app" data-key="c4-projeto"></div>
+            <div class="campo"><label>Plano atual (Spark/Blaze)</label><input type="text" placeholder="ex: Spark (gratuito)" data-key="c4-plano"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-c5">
+          <div class="item-form-header" onclick="toggleForm(this,'c5')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Conta Google Analytics ou Plausible <span class="recomendado">recomendado</span></div>
+              <div class="item-hint">Para medir visitas e conversões na página de vendas.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>ID de rastreamento (ex: G-XXXXXXXX)</label><input type="text" placeholder="G-XXXXXXXXXX" data-key="c5-id"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Domínio</div>
+        <div class="item-form" id="if-c6">
+          <div class="item-form-header" onclick="toggleForm(this,'c6')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Domínio tocontando.app <span class="urgente">urgente</span></div>
+              <div class="item-hint">Comprar em Porkbun ou Namecheap (~R$60–80/ano). Depois apontar pro Vercel.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo-row">
+              <div class="campo"><label>Registrado em</label><input type="text" placeholder="ex: Porkbun, Namecheap" data-key="c6-registrador"></div>
+              <div class="campo"><label>Validade</label><input type="text" placeholder="ex: 19/04/2027" data-key="c6-validade"></div>
+            </div>
+            <div class="campo"><label>E-mail de login no registrador</label><input type="email" placeholder="seu@email.com" data-key="c6-email"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 2 — CONTATOS -->
+  <div class="bloco" id="bloco-2">
+    <div class="bloco-header" onclick="toggleBloco('bloco-2')">
+      <div class="bloco-icon" style="background:#25d36622;">📱</div>
+      <div class="bloco-title">Contatos & Comunicação</div>
+      <div class="bloco-meta">
+        <span class="bloco-count" id="count-bloco-2"></span>
+        <span class="bloco-pill" id="pill-bloco-2"></span>
+      </div>
+      <div class="bloco-chevron">▼</div>
+    </div>
+    <div class="bloco-mini-bar"><div class="bloco-mini-fill" id="mini-bloco-2" style="width:0%"></div></div>
+    <div class="bloco-body">
+
+      <div class="grupo">
+        <div class="grupo-label">WhatsApp de suporte</div>
+
+        <div class="item-form" id="if-w1">
+          <div class="item-form-header" onclick="toggleForm(this,'w1')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Número do WhatsApp Business para suporte <span class="urgente">urgente</span></div>
+              <div class="item-hint">Pode ser seu número pessoal ou um chip dedicado. Configurar como WhatsApp Business.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo-row">
+              <div class="campo"><label>Número (com DDD)</label><input type="tel" placeholder="(11) 99999-9999" data-key="w1-num"></div>
+              <div class="campo"><label>Link direto (wa.me/55...)</label><input type="text" placeholder="wa.me/5511999999999" data-key="w1-link"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-w2">
+          <div class="item-form-header" onclick="toggleForm(this,'w2')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Mensagem automática de ausência no WhatsApp Business <span class="urgente">urgente</span></div>
+              <div class="item-hint">Aparece quando você não está disponível. Colocar horário de atendimento.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Texto da mensagem de ausência</label><textarea placeholder='Ex: "Olá! Recebi sua mensagem 😊 Respondo em breve. Suporte: seg–sex, 9h–18h."' data-key="w2-msg"></textarea></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-w3">
+          <div class="item-form-header" onclick="toggleForm(this,'w3')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Horário de atendimento definido <span class="urgente">urgente</span></div>
+              <div class="item-hint">Deixar claro para o cliente quando pode esperar resposta. Anunciar na página de vendas e e-mail.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Horário de atendimento</label><input type="text" placeholder="ex: segunda a sexta, 9h às 18h" data-key="w3-horario"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">E-mail profissional</div>
+
+        <div class="item-form" id="if-e1">
+          <div class="item-form-header" onclick="toggleForm(this,'e1')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">E-mail de suporte/contato <span class="recomendado">recomendado</span></div>
+              <div class="item-hint">Idealmente contato@tocontando.app. Pode ser Gmail por enquanto. Colocar no rodapé do site.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>E-mail de contato público</label><input type="email" placeholder="contato@tocontando.app" data-key="e1-email"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-e2">
+          <div class="item-form-header" onclick="toggleForm(this,'e2')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">E-mail para receber notificações do Kiwify <span class="urgente">urgente</span></div>
+              <div class="item-hint">Onde chegam os avisos de vendas, cancelamentos e reembolsos.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>E-mail cadastrado no Kiwify</label><input type="email" placeholder="seu@email.com" data-key="e2-email"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 3 — DOCUMENTOS PESSOAIS / FISCAIS -->
+  <div class="bloco" id="bloco-3">
+    <div class="bloco-header" onclick="toggleBloco('bloco-3')">
+      <div class="bloco-icon" style="background:#e0525222;">📄</div>
+      <div class="bloco-title">Documentos Pessoais & Fiscais</div>
+      <div class="bloco-meta">
+        <span class="bloco-count" id="count-bloco-3"></span>
+        <span class="bloco-pill" id="pill-bloco-3"></span>
+      </div>
+      <div class="bloco-chevron">▼</div>
+    </div>
+    <div class="bloco-mini-bar"><div class="bloco-mini-fill" id="mini-bloco-3" style="width:0%"></div></div>
+    <div class="bloco-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Para o Kiwify (obrigatório para sacar)</div>
+
+        <div class="item-form" id="if-d1">
+          <div class="item-form-header" onclick="toggleForm(this,'d1')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">CPF cadastrado e verificado no Kiwify <span class="urgente">urgente</span></div>
+              <div class="item-hint">O Kiwify exige CPF válido para liberar saques.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>CPF</label><input type="text" placeholder="000.000.000-00" data-key="d1-cpf"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-d2">
+          <div class="item-form-header" onclick="toggleForm(this,'d2')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Conta bancária ou chave Pix cadastrada no Kiwify <span class="urgente">urgente</span></div>
+              <div class="item-hint">Para receber os pagamentos. Pix é o mais rápido.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo-row">
+              <div class="campo"><label>Tipo de chave Pix</label><input type="text" placeholder="ex: CPF, e-mail, celular" data-key="d2-tipo"></div>
+              <div class="campo"><label>Chave Pix</label><input type="text" placeholder="sua chave pix" data-key="d2-chave"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-d3">
+          <div class="item-form-header" onclick="toggleForm(this,'d3')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">CNPJ (opcional, mas recomendado se crescer) <span class="recomendado">recomendado</span></div>
+              <div class="item-hint">MEI é suficiente. Permite emitir nota fiscal, reduz imposto e passa mais credibilidade.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo-row">
+              <div class="campo"><label>CNPJ (se tiver)</label><input type="text" placeholder="00.000.000/0001-00" data-key="d3-cnpj"></div>
+              <div class="campo"><label>Tipo</label><input type="text" placeholder="ex: MEI, ME, Ltda" data-key="d3-tipo"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Documentos jurídicos do produto</div>
+
+        <div class="item-form" id="if-d4">
+          <div class="item-form-header" onclick="toggleForm(this,'d4')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Termos de Uso redigidos <span class="urgente">urgente</span></div>
+              <div class="item-hint">O que o app faz e não faz, limitação de responsabilidade, política de reembolso (7 dias CDC), como cancelar.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Link dos Termos de Uso (quando publicados)</label><input type="url" placeholder="https://tocontando.app/termos" data-key="d4-link"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-d5">
+          <div class="item-form-header" onclick="toggleForm(this,'d5')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Política de Privacidade (LGPD) redigida <span class="urgente">urgente</span></div>
+              <div class="item-hint">Quais dados coleta (e-mail, dados financeiros), onde armazena (Firebase/Google), por quanto tempo, como o usuário pode pedir exclusão.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Link da Política de Privacidade (quando publicada)</label><input type="url" placeholder="https://tocontando.app/privacidade" data-key="d5-link"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 4 — MATERIAIS VISUAIS -->
+  <div class="bloco" id="bloco-4">
+    <div class="bloco-header" onclick="toggleBloco('bloco-4')">
+      <div class="bloco-icon" style="background:#ec489922;">🎨</div>
+      <div class="bloco-title">Materiais Visuais & Conteúdo</div>
+      <div class="bloco-meta">
+        <span class="bloco-count" id="count-bloco-4"></span>
+        <span class="bloco-pill" id="pill-bloco-4"></span>
+      </div>
+      <div class="bloco-chevron">▼</div>
+    </div>
+    <div class="bloco-mini-bar"><div class="bloco-mini-fill" id="mini-bloco-4" style="width:0%"></div></div>
+    <div class="bloco-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Identidade visual</div>
+        <div class="item" onclick="toggle(this)" data-id="v1">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Logo do TôContando em PNG com fundo transparente</div>
+            <div class="item-hint">Usar nas redes sociais, e-mails e materiais de divulgação.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="v2">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Imagem de capa do produto no Kiwify (800×600px)</div>
+            <div class="item-hint">Print bonito do app ou composição com logo. Aparece na página de checkout.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="v3">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Foto de perfil para o Instagram (1:1, 400×400px)</div>
+            <div class="item-hint">Logo ou versão simplificada da marca.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="v4">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Screenshots do app para usar em posts e stories</div>
+            <div class="item-hint">Pelo menos 3–5 telas: resumo mensal, lançamento de despesa, categorias.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Vídeo & Demo</div>
+        <div class="item" onclick="toggle(this)" data-id="v5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Vídeo demo de 30–60 segundos do app funcionando <span class="urgente">urgente</span></div>
+            <div class="item-hint">Gravar a tela do celular usando o app de verdade. Mostrar: abrir, lançar despesa, ver resumo. Pode ser Reels, story ou enviado no WhatsApp.</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="v6">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Tutorial em vídeo: como instalar o app no celular (PWA)</div>
+            <div class="item-hint">iPhone: Safari → compartilhar → "Adicionar à tela de início". Android: Chrome → menu → "Adicionar à tela inicial".</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 5 — TEXTOS & COMUNICAÇÃO -->
+  <div class="bloco" id="bloco-5">
+    <div class="bloco-header" onclick="toggleBloco('bloco-5')">
+      <div class="bloco-icon" style="background:#3b82f622;">✍️</div>
+      <div class="bloco-title">Textos que Você Precisa Ter Prontos</div>
+      <div class="bloco-meta">
+        <span class="bloco-count" id="count-bloco-5"></span>
+        <span class="bloco-pill" id="pill-bloco-5"></span>
+      </div>
+      <div class="bloco-chevron">▼</div>
+    </div>
+    <div class="bloco-mini-bar"><div class="bloco-mini-fill" id="mini-bloco-5" style="width:0%"></div></div>
+    <div class="bloco-body">
+
+      <div class="grupo">
+        <div class="grupo-label">E-mails automáticos (configurar no Kiwify)</div>
+
+        <div class="item-form" id="if-t1">
+          <div class="item-form-header" onclick="toggleForm(this,'t1')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">E-mail de boas-vindas (enviado após compra) <span class="urgente">urgente</span></div>
+              <div class="item-hint">Deve conter: link do app, chave de acesso, como instalar no celular, WhatsApp de suporte.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Assunto do e-mail</label><input type="text" placeholder='ex: "Seu acesso ao TôContando chegou! 🎉"' data-key="t1-assunto"></div>
+            <div class="campo"><label>Corpo do e-mail</label><textarea placeholder="Olá {nome}! Bem-vindo ao TôContando. Seu acesso está pronto..." data-key="t1-corpo"></textarea></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-t2">
+          <div class="item-form-header" onclick="toggleForm(this,'t2')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">E-mail de cancelamento <span class="recomendado">recomendado</span></div>
+              <div class="item-hint">Tom amigável. Informar até quando o acesso fica ativo. Deixar porta aberta para voltar.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Corpo do e-mail de cancelamento</label><textarea placeholder="Recebemos sua solicitação de cancelamento. Seu acesso fica ativo até..." data-key="t2-corpo"></textarea></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-t3">
+          <div class="item-form-header" onclick="toggleForm(this,'t3')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Mensagem de boas-vindas no WhatsApp (enviada manualmente) <span class="urgente">urgente</span></div>
+              <div class="item-hint">Texto curto e acolhedor para enviar assim que alguém compra. Cria proximidade.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Texto da mensagem de boas-vindas</label><textarea placeholder='Ex: "Oi {nome}! Seja bem-vinda ao TôContando 😊 Seu acesso está no e-mail. Qualquer dúvida, é só chamar aqui!"' data-key="t3-msg"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Respostas prontas de suporte (salvar no WhatsApp Business)</div>
+
+        <div class="item-form" id="if-t4">
+          <div class="item-form-header" onclick="toggleForm(this,'t4')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Resposta: "Não recebi o e-mail de acesso"</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Texto da resposta</label><textarea placeholder="Oi! Verifica a caixa de spam com o assunto 'TôContando'. Se não estiver lá, me manda seu e-mail que reenvio agora." data-key="t4-resp"></textarea></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-t5">
+          <div class="item-form-header" onclick="toggleForm(this,'t5')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Resposta: "Como instalo no iPhone / Android?"</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Texto da resposta</label><textarea placeholder="iPhone: abre o link no Safari → toque no ícone de compartilhar → 'Adicionar à Tela de Início'. Android: abre no Chrome → menu (3 pontos) → 'Adicionar à tela inicial'." data-key="t5-resp"></textarea></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-t6">
+          <div class="item-form-header" onclick="toggleForm(this,'t6')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Resposta: "Quero cancelar / pedir reembolso"</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Texto da resposta</label><textarea placeholder="Tudo bem! Para cancelar, acesse [link portal Kiwify]. Para reembolso em até 7 dias da compra, basta solicitar pelo mesmo portal." data-key="t6-resp"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Redes sociais</div>
+
+        <div class="item-form" id="if-t7">
+          <div class="item-form-header" onclick="toggleForm(this,'t7')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Bio do Instagram <span class="recomendado">recomendado</span></div>
+              <div class="item-hint">Máximo 150 caracteres. O que é, para quem é, call to action + link.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Texto da bio</label><textarea placeholder='Ex: "Controle financeiro da casa, simples e rápido. Sem planilha. Só você e seu dinheiro. 👇"' data-key="t7-bio"></textarea></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-t8">
+          <div class="item-form-header" onclick="toggleForm(this,'t8')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Post de lançamento (texto + imagem) <span class="urgente">urgente</span></div>
+              <div class="item-hint">Anúncio do lançamento. Honesto, simples, com link. Pode ser story + feed.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Texto do post de lançamento</label><textarea placeholder="Lançamos o TôContando! Um app simples para você saber, de verdade, onde vai o dinheiro da sua casa..." data-key="t8-post"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 6 — PRODUTO & ACESSO -->
+  <div class="bloco" id="bloco-6">
+    <div class="bloco-header" onclick="toggleBloco('bloco-6')">
+      <div class="bloco-icon" style="background:#0cb8a422;">⚙️</div>
+      <div class="bloco-title">Configurações do Produto</div>
+      <div class="bloco-meta">
+        <span class="bloco-count" id="count-bloco-6"></span>
+        <span class="bloco-pill" id="pill-bloco-6"></span>
+      </div>
+      <div class="bloco-chevron">▼</div>
+    </div>
+    <div class="bloco-mini-bar"><div class="bloco-mini-fill" id="mini-bloco-6" style="width:0%"></div></div>
+    <div class="bloco-body">
+
+      <div class="grupo">
+        <div class="grupo-label">Links & URLs importantes</div>
+
+        <div class="item-form" id="if-p1">
+          <div class="item-form-header" onclick="toggleForm(this,'p1')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Links de checkout Kiwify <span class="urgente">urgente</span></div>
+              <div class="item-hint">Já configurados na página de vendas. Guardar aqui para referência.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Link checkout mensal</label><input type="url" placeholder="https://pay.kiwify.com.br/uK4ZDB5" data-key="p1-mensal" value="https://pay.kiwify.com.br/uK4ZDB5"></div>
+            <div class="campo"><label>Link checkout anual</label><input type="url" placeholder="https://pay.kiwify.com.br/D8ikYnR" data-key="p1-anual" value="https://pay.kiwify.com.br/D8ikYnR"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-p2">
+          <div class="item-form-header" onclick="toggleForm(this,'p2')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Chave de acesso do app (entregue ao cliente) <span class="urgente">urgente</span></div>
+              <div class="item-hint">A chave que o cliente usa para entrar no app. Decidir se é única ou por cliente.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Chave de acesso atual</label><input type="text" placeholder="ex: tocontando2026" data-key="p2-chave"></div>
+            <div class="campo"><label>Como é entregue ao cliente</label><input type="text" placeholder="ex: no e-mail de boas-vindas" data-key="p2-entrega"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-p3">
+          <div class="item-form-header" onclick="toggleForm(this,'p3')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">URL definitiva do app (para enviar ao cliente) <span class="urgente">urgente</span></div>
+              <div class="item-hint">Link que o cliente abre no celular para usar o app.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>URL do app</label><input type="url" placeholder="https://tocontando.app" data-key="p3-url"></div>
+          </div>
+        </div>
+
+        <div class="item-form" id="if-p4">
+          <div class="item-form-header" onclick="toggleForm(this,'p4')">
+            <div class="cb"><span class="cb-check">✓</span></div>
+            <div class="item-content">
+              <div class="item-text">Link do portal do assinante Kiwify (para cancelamentos) <span class="urgente">urgente</span></div>
+              <div class="item-hint">Link onde o cliente acessa para cancelar a assinatura. Enviar nas respostas de suporte.</div>
+            </div>
+          </div>
+          <div class="item-form-fields">
+            <div class="campo"><label>Link do portal do assinante</label><input type="url" placeholder="https://..." data-key="p4-portal"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grupo">
+        <div class="grupo-label">Preços definidos</div>
+        <div class="item" onclick="toggle(this)" data-id="p5">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Preços confirmados: R$14,90/mês e R$119,90/ano</div>
+            <div class="item-hint">Anual = 2 meses grátis. Verificar se faz sentido financeiramente (custo Firebase + domínio).</div>
+          </div>
+        </div>
+        <div class="item" onclick="toggle(this)" data-id="p6">
+          <div class="cb"><span class="cb-check">✓</span></div>
+          <div class="item-content">
+            <div class="item-text">Prazo de reembolso configurado (7 dias) no Kiwify</div>
+            <div class="item-hint">Obrigatório pelo CDC. Configurar em Configurações do produto no Kiwify.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <button class="btn-reset" onclick="resetAll()">Resetar todo o progresso</button>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'tc-prov-v1';
+const FIELD_KEY   = 'tc-prov-fields-v1';
+
+/* ── toggle bloco ── */
+function toggleBloco(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+/* ── toggle item-form (checkbox) ── */
+function toggleForm(header, id) {
+  const wrapper = document.getElementById('if-' + id);
+  wrapper.classList.toggle('done');
+  saveChecks();
+  updateAll();
+}
+
+/* ── toggle simples ── */
+function toggle(el) {
+  el.classList.toggle('done');
+  saveChecks();
+  updateAll();
+}
+
+/* ── salvar checkboxes ── */
+function saveChecks() {
+  const state = {};
+  document.querySelectorAll('.item[data-id]').forEach(el => {
+    state[el.dataset.id] = el.classList.contains('done');
+  });
+  document.querySelectorAll('.item-form[id^="if-"]').forEach(el => {
+    const id = el.id.replace('if-', '');
+    state['form-' + id] = el.classList.contains('done');
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+/* ── salvar campos de texto ── */
+function saveFields() {
+  const fields = {};
+  document.querySelectorAll('[data-key]').forEach(el => {
+    fields[el.dataset.key] = el.value;
+  });
+  localStorage.setItem(FIELD_KEY, JSON.stringify(fields));
+}
+
+/* ── carregar tudo ── */
+function load() {
+  const rawChecks = localStorage.getItem(STORAGE_KEY);
+  if (rawChecks) {
+    const state = JSON.parse(rawChecks);
+    document.querySelectorAll('.item[data-id]').forEach(el => {
+      if (state[el.dataset.id]) el.classList.add('done');
+    });
+    document.querySelectorAll('.item-form[id^="if-"]').forEach(el => {
+      const id = el.id.replace('if-', '');
+      if (state['form-' + id]) el.classList.add('done');
+    });
+  }
+  const rawFields = localStorage.getItem(FIELD_KEY);
+  if (rawFields) {
+    const fields = JSON.parse(rawFields);
+    document.querySelectorAll('[data-key]').forEach(el => {
+      if (fields[el.dataset.key] !== undefined && fields[el.dataset.key] !== '') {
+        el.value = fields[el.dataset.key];
+      }
+    });
+  }
+}
+
+/* ── atualizar contadores ── */
+function updateAll() {
+  let total = 0, done = 0;
+  for (let i = 1; i <= 6; i++) {
+    const bloco = document.getElementById('bloco-' + i);
+    if (!bloco) continue;
+    const simples = bloco.querySelectorAll('.item[data-id]');
+    const formas  = bloco.querySelectorAll('.item-form[id^="if-"]');
+    const t = simples.length + formas.length;
+    let d = bloco.querySelectorAll('.item[data-id].done').length
+          + bloco.querySelectorAll('.item-form.done').length;
+    total += t; done += d;
+    const pct = t > 0 ? Math.round(d / t * 100) : 0;
+    document.getElementById('mini-bloco-' + i).style.width = pct + '%';
+    document.getElementById('count-bloco-' + i).textContent = d + '/' + t;
+    const pill = document.getElementById('pill-bloco-' + i);
+    if (d === t && t > 0) { pill.textContent = 'Completo'; pill.className = 'bloco-pill pill-done'; }
+    else if (d > 0)        { pill.textContent = 'Em andamento'; pill.className = 'bloco-pill pill-prog'; }
+    else                   { pill.textContent = 'Pendente'; pill.className = 'bloco-pill pill-todo'; }
+  }
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('bar').style.width = pct + '%';
+  document.getElementById('pct').textContent = pct + '%';
+}
+
+function resetAll() {
+  if (!confirm('Resetar todo o progresso e campos preenchidos?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(FIELD_KEY);
+  location.reload();
+}
+
+/* ── salvar campos ao digitar ── */
+document.querySelectorAll('[data-key]').forEach(el => {
+  el.addEventListener('input', saveFields);
+});
+
+load();
+updateAll();
+</script>
+</body>
+</html>
