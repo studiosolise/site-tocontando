@@ -68,6 +68,11 @@ body{
 }
 .progress-pct{color:var(--brand);font-weight:700;}
 
+/* ── NAV PAGES ── */
+.nav-pages{display:flex;gap:10px;margin-top:14px;}
+.nav-pages a{font-size:.82rem;font-weight:600;color:var(--muted2);text-decoration:none;padding:7px 16px;border:1px solid #2a2f3e;border-radius:99px;background:transparent;transition:all .15s;}
+.nav-pages a:hover,.nav-pages a.active{background:var(--brand);color:white;border-color:var(--brand);}
+
 /* ── LAYOUT ── */
 .main{max-width:860px;margin:0 auto;padding:32px 24px 80px;}
 
@@ -229,6 +234,10 @@ body{
   <div class="header-in">
     <div class="logo"><div class="logo-dot"></div> TôContando</div>
     <div class="header-title">Planejamento de Lançamento</div>
+    <div class="nav-pages">
+      <a href="/planejamento" class="active">Planejamento</a>
+      <a href="/providencias">O que providenciar →</a>
+    </div>
     <div class="progress-wrap">
       <div class="progress-bar-bg">
         <div class="progress-bar-fill" id="bar" style="width:0%"></div>

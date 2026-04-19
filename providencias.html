@@ -119,10 +119,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .btn-reset{display:block;margin:32px auto 0;background:none;border:1px solid var(--border);color:var(--muted);font-size:.78rem;font-weight:600;padding:8px 20px;border-radius:99px;cursor:pointer;transition:all .15s;}
 .btn-reset:hover{border-color:var(--red);color:var(--red);}
 
-/* ── LINK PLANEAMENTO ── */
-.nav-link{display:flex;gap:16px;margin-bottom:20px;}
-.nav-link a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:8px 16px;border:1px solid var(--border);border-radius:99px;background:var(--surface);transition:all .15s;}
-.nav-link a:hover,.nav-link a.active{background:var(--brand);color:white;border-color:var(--brand);}
+/* ── NAV PAGES ── */
+.nav-pages{display:flex;gap:10px;margin-top:14px;}
+.nav-pages a{font-size:.82rem;font-weight:600;color:var(--muted2);text-decoration:none;padding:7px 16px;border:1px solid #2a2f3e;border-radius:99px;background:transparent;transition:all .15s;}
+.nav-pages a:hover,.nav-pages a.active{background:var(--brand);color:white;border-color:var(--brand);}
 
 @media(max-width:600px){
   .header{padding:20px 18px 16px;}
@@ -139,7 +139,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   <div class="header-in">
     <div class="logo"><div class="logo-dot"></div> TôContando</div>
     <div class="header-title">O que Providenciar</div>
-    <div class="header-sub">Tudo que você precisa reunir antes de vender</div>
+    <div class="nav-pages">
+      <a href="/planejamento">← Planejamento</a>
+      <a href="/providencias" class="active">O que providenciar</a>
+    </div>
     <div class="progress-wrap">
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar" style="width:0%"></div></div>
       <div class="progress-label"><span class="progress-pct" id="pct">0%</span> providenciado</div>
@@ -148,11 +151,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 </div>
 
 <div class="main">
-
-  <div class="nav-link">
-    <a href="/planejamento">← Planejamento de tarefas</a>
-    <a href="/providencias" class="active">O que providenciar</a>
-  </div>
 
   <div class="alerta">
     <div class="alerta-icon">⚠️</div>
