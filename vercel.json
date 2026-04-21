@@ -1,4 +1,18 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "planejamento.tocontando.app" }],
+      "destination": "/planejamento",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "providencias.tocontando.app" }],
+      "destination": "/providencias",
+      "permanent": false
+    }
+  ]
 }
